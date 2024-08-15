@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Http\IServices\ICategoryService;
 use App\Http\IServices\IUserService;
+use App\Http\Services\CategoryService;
 use App\Http\Services\UserService;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\ServiceProvider;
@@ -15,6 +17,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(IUserService::class, UserService::class);
+        $this->app->bind(ICategoryService::class, CategoryService::class);
     }
 
     /**

@@ -9,7 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up()
     {
         Schema::create('order_details', function (Blueprint $table) {
             $table->id();
@@ -18,12 +18,15 @@ return new class extends Migration
             $table->integer('quantity');
             $table->decimal('unit_price', 8, 2);
             $table->decimal('total_price', 8, 2);
+            $table->decimal('original_price', 8, 2);
+            $table->decimal('discount_amount', 8, 2)->nullable();
+            $table->unsignedBigInteger('campaign_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
-
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
             $table->foreign('product_id')->references('product_id')->on('products');
+            $table->foreign('campaign_id')->references('id')->on('campaigns');
         });
     }
 

@@ -29,6 +29,9 @@ class OrderDetailService implements IOrderDetailService
                 'quantity' => 'required|integer|min:1',
                 'unit_price' => 'required|numeric|min:0',
                 'total_price' => 'required|numeric|min:0',
+                'original_price' => 'required|numeric|min:0',
+                'discount_amount' => 'required|numeric|min:0',
+                'campaign_id' => 'required|exists:campaigns,id',
             ]);
 
             return OrderDetail::create([
@@ -37,6 +40,9 @@ class OrderDetailService implements IOrderDetailService
                 'quantity' => $request->quantity,
                 'unit_price' => $request->unit_price,
                 'total_price' => $request->total_price,
+                'original_price' => $request->original_price,
+                'discount_amount' => $request->discount_amount,
+                'campaign_id' => $request->campaign_id,
             ]);
         } catch (ValidationException $e) {
             throw $e;
@@ -56,6 +62,10 @@ class OrderDetailService implements IOrderDetailService
                 'quantity' => 'required|integer|min:1',
                 'unit_price' => 'required|numeric|min:0',
                 'total_price' => 'required|numeric|min:0',
+                'original_price' => 'required|numeric|min:0',
+                'discount_amount' => 'required|numeric|min:0',
+                'campaign_id' => 'required|exists:campaigns,id',
+
             ]);
 
             return $orderDetail->update([
@@ -64,6 +74,9 @@ class OrderDetailService implements IOrderDetailService
                 'quantity' => $request->quantity,
                 'unit_price' => $request->unit_price,
                 'total_price' => $request->total_price,
+                'original_price' => $request->original_price,
+                'discount_amount' => $request->discount_amount,
+                'campaign_id' => $request->campaign_id,
             ]);
         } catch (ValidationException $e) {
             throw $e;

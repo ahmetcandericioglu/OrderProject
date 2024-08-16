@@ -15,9 +15,11 @@ class OrderDetail extends Model
         'product_id',
         'quantity',
         'unit_price',
-        'total_price'
+        'total_price',
+        'original_price',
+        'discount_amount',
+        'campaign_id',
     ];
-
 
     public function order()
     {
@@ -27,5 +29,10 @@ class OrderDetail extends Model
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id', 'product_id');
+    }
+
+    public function campaign()
+    {
+        return $this->belongsTo(Campaign::class);
     }
 }

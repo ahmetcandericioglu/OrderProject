@@ -3,12 +3,10 @@
 use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderDetailController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
-use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Validation\ValidationException;
 
 Route::middleware(['auth:sanctum'])->get('/user', function () {
     return "asd";
@@ -43,3 +41,9 @@ Route::get('/orders/{id}', [OrderController::class, 'show']);
 Route::post('/orders', [OrderController::class, 'store']);
 Route::put('/orders/{id}', [OrderController::class, 'update']);
 Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
+
+Route::get('/order-details', [OrderDetailController::class, 'index']);
+Route::get('/order-details/{id}', [OrderDetailController::class, 'show']);
+Route::post('/order-details', [OrderDetailController::class, 'store']);
+Route::put('/order-details/{id}', [OrderDetailController::class, 'update']);
+Route::delete('/order-details/{id}', [OrderDetailController::class, 'destroy']);

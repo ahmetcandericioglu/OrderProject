@@ -4,11 +4,13 @@ namespace App\Providers;
 
 use App\Http\IServices\ICampaignService;
 use App\Http\IServices\ICategoryService;
+use App\Http\IServices\IOrderDetailService;
 use App\Http\IServices\IOrderService;
 use App\Http\IServices\IProductService;
 use App\Http\IServices\IUserService;
 use App\Http\Services\CampaignService;
 use App\Http\Services\CategoryService;
+use App\Http\Services\OrderDetailService;
 use App\Http\Services\OrderService;
 use App\Http\Services\ProductService;
 use App\Http\Services\UserService;
@@ -27,6 +29,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ICampaignService::class, CampaignService::class);
         $this->app->bind(IProductService::class, ProductService::class);
         $this->app->bind(IOrderService::class, OrderService::class);
+        $this->app->bind(IOrderDetailService::class, OrderDetailService::class);
+
 
     }
 

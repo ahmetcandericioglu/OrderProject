@@ -15,10 +15,12 @@ use Exception;
 class OrderService implements IOrderService
 {
     protected $productService;
+    protected $campaignService;
 
-    public function __construct(ProductService $productService)
+    public function __construct(ProductService $productService, CampaignService $campaignService)
     {
         $this->productService = $productService;
+        $this->campaignService = $campaignService;
     }
     public function getAllOrders()
     {
@@ -106,6 +108,13 @@ class OrderService implements IOrderService
             $shippingFee = 0;
             $appliedCampaign = null;
 
+            $order = Order::create([
+                'total_amount' => 0, 
+                'discount_amount' => 0, 
+                'shipping_fee' => 0, 
+                'final_amount' => 0 
+            ]);
+
             foreach ($orderDetailsData as $detail) {
                 $product = Product::findOrFail($detail['product_id']);
 
@@ -113,47 +122,47 @@ class OrderService implements IOrderService
                     throw new Exception("Insufficient stock for product ID: {$product->product_id}");
                 }
 
-                list($appliedCampaign, $discount) = $this->applyBestCampaign($product, $detail['quantity']);
-                $discountAmount += $discount;
-
                 $originalPrice = $product->list_price * $detail['quantity'];
-                $totalAmount += $originalPrice - $discount;
-
+                $totalAmount += $originalPrice;
+                
+                // Ürünün stok miktarını azalt
                 $this->productService->decreaseStock($product->product_id, $detail['quantity']);
-            }
 
-            if ($totalAmount <= 50) {
-                $shippingFee = 10;
-            }
-
-            $finalAmount = $totalAmount + $shippingFee - $discountAmount;
-
-            $orderRequest = new Request([
-                'total_amount' => $totalAmount,
-                'discount_amount' => $discountAmount,
-                'shipping_fee' => $shippingFee,
-                'final_amount' => $finalAmount,
-            ]);
-
-            $order = $this->createOrder($orderRequest);
-
-            foreach ($orderDetailsData as $detail) {
-                $product = Product::findOrFail($detail['product_id']);
-                OrderDetail::create([
+                $newOrderDetail = OrderDetail::create([
                     'order_id' => $order->id,
                     'product_id' => $product->product_id,
                     'quantity' => $detail['quantity'],
                     'unit_price' => $product->list_price,
-                    'total_price' => $product->list_price * $detail['quantity'],
-                    'original_price' => $product->list_price * $detail['quantity'],
-                    'discount_amount' => $discountAmount,
-                    'campaign_id' => $appliedCampaign ? $appliedCampaign->id : null,
+                    'total_price' => $originalPrice,
+                    'original_price' => $originalPrice,
                 ]);
+
+                list($appliedCampaign, $discountAmount) = $this->campaignService->applyBestCampaign($order);
+
+                $newOrderDetail->campaign_id = $appliedCampaign->id;
+                $newOrderDetail->discount_amount = $discountAmount;
+                $newOrderDetail->total_price = $totalAmount-$discountAmount;
+                $newOrderDetail->save();
             }
+
+            $order->total_amount = $totalAmount;
+
+            // Kampanya Uygulaması
+            list($appliedCampaign, $discountAmount) = $this->campaignService->applyBestCampaign($order);
+            $order->discount_amount = $discountAmount;
+
+            // Kargo ücreti hesaplama
+            $shippingFee = $totalAmount > 50 ? 0 : 10;
+            $order->shipping_fee = $shippingFee;
+
+            $order->final_amount = $totalAmount - $discountAmount + $shippingFee;
+
+            // Güncellenmiş Order'ı Kaydetme
+            $order->save();
 
             DB::commit();
 
-            return $order;
+            return $order->load('orderDetails');
         } catch (ValidationException $e) {
             DB::rollBack();
             throw $e; 
@@ -162,30 +171,4 @@ class OrderService implements IOrderService
             throw new Exception("Order creation failed: " . $e->getMessage());
         }
     }
-
-
-    private function applyBestCampaign(Product $product, int $quantity): array
-        {
-            $campaigns = Campaign::all();
-            $bestCampaign = null;
-            $maxDiscount = 0;
-
-            foreach ($campaigns as $campaign) {
-                $discount = 0;
-                if ($campaign->type === 'Sabahattin Ali 2 ürün 1 bedava' && $quantity >= 2) {
-                    $discount = $product->list_price; 
-                } elseif ($campaign->type === 'Yerli Yazar %5 indirim' && $product->author_is_local) {
-                    $discount = ($product->list_price * $quantity) * 0.05;
-                } elseif ($campaign->type === '200 TL üzeri %5 indirim' && $product->list_price * $quantity > 200) {
-                    $discount = ($product->list_price * $quantity) * 0.05; 
-                }
-
-                if ($discount > $maxDiscount) {
-                    $maxDiscount = $discount;
-                    $bestCampaign = $campaign;
-                }
-            }
-
-            return [$bestCampaign, $maxDiscount];
-        }
 }

@@ -4,12 +4,19 @@ namespace App\Http\Services;
 
 use App\Http\IServices\ICampaignService;
 use App\Models\Campaign;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Exception;
 
 class CampaignService implements ICampaignService
 {
+
+    protected $strategies = [
+        'btgo' => \App\Http\Services\Campaigns\SabahattinAliCampaign::class,
+        'local_discount' => \App\Http\Services\Campaigns\LocalAuthorCampaign::class,
+        'total_discount' => \App\Http\Services\Campaigns\OrderTotalDiscountCampaign::class,
+    ];
     public function getAllCampaigns()
     {
         return Campaign::all();
@@ -77,5 +84,25 @@ class CampaignService implements ICampaignService
         } catch (Exception $e) {
             throw new Exception("Campaign Deletion Error: " . $e->getMessage(), 500);
         }
+    }
+
+    public function applyBestCampaign(Order $order): array
+    {
+        $campaigns = Campaign::all();
+        $bestCampaign = null;
+        $maxDiscount = 0;
+
+        foreach ($campaigns as $campaign) {
+            $campaignClass = $this->strategies[$campaign->type];
+            $campaignInstance = new $campaignClass();
+            $discount = $campaignInstance->calculateDiscount($order, $campaign);
+
+            if ($discount > $maxDiscount) {
+                $maxDiscount = $discount;
+                $bestCampaign = $campaign;
+            }
+        }
+
+        return [$bestCampaign, $maxDiscount];
     }
 }

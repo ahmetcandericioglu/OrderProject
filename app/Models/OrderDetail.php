@@ -12,13 +12,15 @@ class OrderDetail extends Model
 
     protected $fillable = [
         'order_id',
-        'product_id',
-        'quantity',
-        'unit_price',
-        'total_price',
-        'original_price',
-        'discount_amount',
         'campaign_id',
+        'products',
+        'total_price',
+        'discount_amount',
+        'final_price',
+    ];
+
+    protected $casts = [
+        'products' => 'array',
     ];
 
     public function order()
@@ -26,9 +28,9 @@ class OrderDetail extends Model
         return $this->belongsTo(Order::class);
     }
 
-    public function product()
+    public function products()
     {
-        return $this->belongsTo(Product::class, 'product_id', 'product_id');
+        return $this->hasMany(Product::class, 'product_id', 'product_id');
     }
 
     public function campaign()

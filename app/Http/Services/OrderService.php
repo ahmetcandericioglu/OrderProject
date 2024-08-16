@@ -104,16 +104,7 @@ class OrderService implements IOrderService
         try {
             $orderDetailsData = $request->input('order_details');
             $totalAmount = 0;
-            $discountAmount = 0;
-            $shippingFee = 0;
-            $appliedCampaign = null;
-
-            $order = Order::create([
-                'total_amount' => 0, 
-                'discount_amount' => 0, 
-                'shipping_fee' => 0, 
-                'final_amount' => 0 
-            ]);
+            $products = [];
 
             foreach ($orderDetailsData as $detail) {
                 $product = Product::findOrFail($detail['product_id']);
@@ -124,37 +115,51 @@ class OrderService implements IOrderService
 
                 $originalPrice = $product->list_price * $detail['quantity'];
                 $totalAmount += $originalPrice;
-                
-                $this->productService->decreaseStock($product->product_id, $detail['quantity']);
 
-                $newOrderDetail = OrderDetail::create([
-                    'order_id' => $order->id,
+                $products[] = [
                     'product_id' => $product->product_id,
-                    'quantity' => $detail['quantity'],
+                    'title' => $product->title,
+                    'author' => $product->author,
+                    'category_title' => $product->category_title,
+                    'quantity' => $detail['quantity'],  
                     'unit_price' => $product->list_price,
                     'total_price' => $originalPrice,
-                    'original_price' => $originalPrice,
-                ]);
+                ];
 
-                list($appliedCampaign, $discountAmount) = $this->campaignService->applyBestCampaign($order);
-
-                $newOrderDetail->campaign_id = $appliedCampaign->id;
-                $newOrderDetail->discount_amount = $discountAmount;
-                $newOrderDetail->total_price = $totalAmount-$discountAmount;
-                $newOrderDetail->save();
+                $this->productService->decreaseStock($product->product_id, $detail['quantity']);
             }
+            $order = Order::create([
+                'total_amount' => $totalAmount, 
+                'discount_amount' => 0, 
+                'shipping_fee' => 0, 
+                'final_amount' => $totalAmount 
+            ]);
 
-            $order->total_amount = $totalAmount;
+            $orderDetail = OrderDetail::create([
+                'order_id' => $order->id,
+                'products' => $products,
+                'total_price' => $totalAmount,
+                'discount_amount' => 0,
+                'final_price' => $totalAmount,
+                'campaign_id' => null,
+            ]);
 
             list($appliedCampaign, $discountAmount) = $this->campaignService->applyBestCampaign($order);
-            $order->discount_amount = $discountAmount;
+            $finalAmount = $totalAmount - $discountAmount;
+            $shippingFee = $finalAmount > 50 ? 0 : 10;
+            $finalAmount += $shippingFee;
 
-            $shippingFee = $totalAmount > 50 ? 0 : 10;
-            $order->shipping_fee = $shippingFee;
+            $orderDetail->update([
+                'campaign_id' => $appliedCampaign ? $appliedCampaign->id : null,
+                'discount_amount' => $discountAmount,
+                'final_price' => $finalAmount,
+            ]);
 
-            $order->final_amount = $totalAmount - $discountAmount + $shippingFee;
-
-            $order->save();
+            $order->update([
+                'discount_amount' => $discountAmount,
+                'shipping_fee' => $shippingFee,
+                'final_amount' => $finalAmount,
+            ]);
 
             DB::commit();
 
@@ -167,4 +172,6 @@ class OrderService implements IOrderService
             throw new Exception("Order creation failed: " . $e->getMessage());
         }
     }
+
+
 }

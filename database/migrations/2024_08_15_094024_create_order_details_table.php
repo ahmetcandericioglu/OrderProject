@@ -14,18 +14,15 @@ return new class extends Migration
         Schema::create('order_details', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('order_id');
-            $table->unsignedBigInteger('product_id');
-            $table->integer('quantity');
-            $table->decimal('unit_price', 8, 2);
-            $table->decimal('total_price', 8, 2);
-            $table->decimal('original_price', 8, 2);
-            $table->decimal('discount_amount', 8, 2)->nullable();
             $table->unsignedBigInteger('campaign_id')->nullable();
+            $table->json('products');
+            $table->decimal('total_price', 8, 2);
+            $table->decimal('discount_amount', 8, 2)->nullable();
+            $table->decimal('final_price', 10, 2);
             $table->timestamps();
             $table->softDeletes();
 
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
-            $table->foreign('product_id')->references('product_id')->on('products');
             $table->foreign('campaign_id')->references('id')->on('campaigns');
         });
     }

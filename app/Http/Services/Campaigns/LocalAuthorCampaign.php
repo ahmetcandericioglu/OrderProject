@@ -12,12 +12,12 @@ class LocalAuthorCampaign implements CampaignStrategyInterface
         $discount = 0;
         $localAuthors = ['Yaşar Kemal', 'Oğuz Atay', 'Sabahattin Ali'];
 
-        $localAuthorBooks = $order->orderDetails->filter(function ($detail) use ($localAuthors) {
-            return in_array($detail->product->author, $localAuthors);
-        });
-
-        foreach ($localAuthorBooks as $detail) {
-            $discount += $detail->total_price * 0.05;
+        foreach ($order->orderDetails as $orderDetail) {
+            foreach ($orderDetail->products as $product) {
+                if (in_array($product['author'], $localAuthors)) {
+                    $discount += $product['total_price'] * 0.05;
+                }
+            }
         }
 
         return $discount;

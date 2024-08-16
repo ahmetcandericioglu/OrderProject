@@ -125,7 +125,6 @@ class OrderService implements IOrderService
                 $originalPrice = $product->list_price * $detail['quantity'];
                 $totalAmount += $originalPrice;
                 
-                // Ürünün stok miktarını azalt
                 $this->productService->decreaseStock($product->product_id, $detail['quantity']);
 
                 $newOrderDetail = OrderDetail::create([
@@ -147,17 +146,14 @@ class OrderService implements IOrderService
 
             $order->total_amount = $totalAmount;
 
-            // Kampanya Uygulaması
             list($appliedCampaign, $discountAmount) = $this->campaignService->applyBestCampaign($order);
             $order->discount_amount = $discountAmount;
 
-            // Kargo ücreti hesaplama
             $shippingFee = $totalAmount > 50 ? 0 : 10;
             $order->shipping_fee = $shippingFee;
 
             $order->final_amount = $totalAmount - $discountAmount + $shippingFee;
 
-            // Güncellenmiş Order'ı Kaydetme
             $order->save();
 
             DB::commit();

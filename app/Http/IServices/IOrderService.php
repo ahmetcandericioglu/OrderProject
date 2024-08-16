@@ -16,4 +16,6 @@ interface IOrderService
     public function updateOrder(int $id, Request $request): bool;
 
     public function deleteOrder(int $id): bool;
+
+    public function processOrderCreation(Request $request): Order;
 }

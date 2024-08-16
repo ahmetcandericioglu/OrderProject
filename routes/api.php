@@ -41,6 +41,7 @@ Route::get('/orders/{id}', [OrderController::class, 'show']);
 Route::post('/orders', [OrderController::class, 'store']);
 Route::put('/orders/{id}', [OrderController::class, 'update']);
 Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
+Route::post("/orders/process", [OrderController::class, 'storeOrderWithConstraints']);
 
 Route::get('/order-details', [OrderDetailController::class, 'index']);
 Route::get('/order-details/{id}', [OrderDetailController::class, 'show']);

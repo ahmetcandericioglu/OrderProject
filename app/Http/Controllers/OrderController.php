@@ -64,5 +64,15 @@ class OrderController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    public function storeOrderWithConstraints(Request $request){
+        try { 
+            return response()->json([$this->orderService->processOrderCreation($request)]);
+        } catch (ValidationException $e) {
+            return response()->json(['error'=> $e->getMessage()], 400);
+        } catch (Exception $e) {
+            return response()->json(['error'=> $e->getMessage()], 500);
+        }
+    }
 }
 

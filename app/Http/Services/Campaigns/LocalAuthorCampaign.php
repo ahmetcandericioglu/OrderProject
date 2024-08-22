@@ -10,7 +10,7 @@ class LocalAuthorCampaign implements CampaignStrategyInterface
     public function calculateDiscount(Order $order, Campaign $campaign): float
     {
         $discount = 0;
-        $localAuthors = ['Yaşar Kemal', 'Oğuz Atay', 'Sabahattin Ali'];
+        $localAuthors = ['Yaşar Kemal', 'Oğuz Atay', 'Sabahattin Ali', 'Hakan Mengüç', 'Uğur Koşar', 'Mehmet Yıldız', 'Mert Arık', 'Peyami Safa'];
 
         foreach ($order->orderDetails as $orderDetail) {
             foreach ($orderDetail->products as $product) {

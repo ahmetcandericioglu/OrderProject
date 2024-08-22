@@ -16,10 +16,10 @@ class CampaignSeeder extends Seeder
         $campaigns = [
             [
                 'name' => 'Sabahattin Ali Romanlarında 2 Al 1 Öde',
-                'type' => 'bogo', // Buy One Get One
+                'type' => 'btgo',
                 'conditions' => [
                     'author' => 'Sabahattin Ali',
-                    'category_id' => 1, // Roman kategorisi
+                    'category_id' => 1,
                     'min_quantity' => 2,
                     'max_free_items' => 1
                 ],
@@ -27,7 +27,7 @@ class CampaignSeeder extends Seeder
             ],
             [
                 'name' => 'Yerli Yazar Kitaplarında %5 İndirim',
-                'type' => 'discount',
+                'type' => 'local_discount',
                 'conditions' => [
                     'local_author' => true,
                     'discount_rate' => 0.05
@@ -36,7 +36,7 @@ class CampaignSeeder extends Seeder
             ],
             [
                 'name' => '200 TL ve Üzeri Alışverişlerde %5 İndirim',
-                'type' => 'discount',
+                'type' => 'total_discount',
                 'conditions' => [
                     'min_order_amount' => 200,
                     'discount_rate' => 0.05

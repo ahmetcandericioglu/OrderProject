@@ -14,10 +14,9 @@ class SabahattinAliCampaign implements CampaignStrategyInterface
         foreach ($order->orderDetails as $orderDetail) {
             foreach ($orderDetail->products as $product) {
                 if ($product['author'] === 'Sabahattin Ali' && $product['category_title'] === 'Roman') {
-                    // Örneğin: 2 üründen 1 tanesi bedava
                     $quantity = $product['quantity'];
                     if ($quantity >= 2) {
-                        $discount += $product['unit_price']; // En ucuz ürünü ücretsiz yapıyoruz
+                        $discount += $product['unit_price'];
                     }
                 }
             }

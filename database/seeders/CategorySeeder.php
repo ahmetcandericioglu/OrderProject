@@ -20,6 +20,8 @@ class CategorySeeder extends Seeder
             ['id' => 4, 'title' => 'Din Tasavvuf'],
             ['id' => 5, 'title' => 'Öykü'],
             ['id' => 6, 'title' => 'Felsefe'],
+            ['id' => 7, 'title' => 'Çocuk ve Gelişim'],
+
         ];
 
         foreach ($categories as $category) {

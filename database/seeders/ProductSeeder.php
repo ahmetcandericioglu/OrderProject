@@ -98,7 +98,7 @@ class ProductSeeder extends Seeder
             [
                 'product_id' => 10,
                 'title' => 'Benim Zürafam Uçabilir',
-                'category_id' => 4,
+                'category_id' => 7,
                 'category_title' => 'Çocuk ve Gençlik',
                 'author' => 'Mert Arık',
                 'list_price' => 27.3,

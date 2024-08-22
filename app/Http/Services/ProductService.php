@@ -74,10 +74,8 @@ class ProductService implements IProductService
     public function updateProduct(int $id, Request $request): bool
     {
         try {
-            // Mevcut ürünü veritabanından veya cache'den al
             $product = $this->getProductById($id);
 
-            // Validasyon
             $request->validate([
                 'title' => 'required|string|max:255',
                 'category_id' => 'required|exists:categories,id',
@@ -86,8 +84,8 @@ class ProductService implements IProductService
                 'stock_quantity' => 'required|integer|min:0',
             ]);
 
-            // Kategori doğrulaması
             $category = Category::find($request->category_id);
+            
             if (!$category) {
                 throw new NotFoundHttpException("Category not found.");
             }

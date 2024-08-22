@@ -5,6 +5,7 @@ namespace App\Http\Services;
 use App\Http\IServices\ICampaignService;
 use App\Models\Campaign;
 use App\Models\Order;
+use Cache;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Exception;
@@ -19,12 +20,25 @@ class CampaignService implements ICampaignService
     ];
     public function getAllCampaigns()
     {
-        return Campaign::all();
+
+        $cacheKey = 'all_campaigns';
+        
+        $campaigns = Cache::remember($cacheKey, 3600, function () {
+            return Campaign::all();
+        });
+
+        return $campaigns;
+
     }
 
     public function getCampaignById(int $id): ?Campaign
     {
-        return Campaign::findOrFail($id);
+        $cacheKey = 'campaign_' . $id;
+        
+        $campaign = Cache::remember($cacheKey, 3600, function () use ($id) {
+            return Campaign::findOrFail($id);
+        });
+        return $campaign;
     }
 
     public function createCampaign(Request $request): Campaign
@@ -37,12 +51,18 @@ class CampaignService implements ICampaignService
                 'discount_rate' => 'required|numeric|min:0|max:100',
             ]);
 
-            return Campaign::create([
+            $campaign = Campaign::create([
                 'name' => $request->name,
                 'type' => $request->type,
                 'conditions' => $request->conditions,
                 'discount_rate' => $request->discount_rate,
             ]);
+
+            $cacheKey = 'campaign_' . $campaign->id;
+            Cache::put($cacheKey, $campaign, 3600);
+
+            return $campaign;
+        
         } catch (ValidationException $e) {
             throw $e;
         } catch (Exception $e) {
@@ -62,12 +82,19 @@ class CampaignService implements ICampaignService
                 'discount_rate' => 'required|numeric|min:0|max:100',
             ]);
 
-            return $campaign->update([
+            $updated = $campaign->update([
                 'name' => $request->name,
                 'type' => $request->type,
                 'conditions' => $request->conditions,
                 'discount_rate' => $request->discount_rate,
             ]);
+
+            if ($updated) {
+                $cacheKey = 'campaign_' . $id;
+                Cache::put($cacheKey, $campaign, 3600); 
+            }
+
+            return $updated;
         } catch (ValidationException $e) {
             throw $e;
         } catch (Exception $e) {
@@ -79,7 +106,8 @@ class CampaignService implements ICampaignService
     {
         try {
             $campaign = $this->getCampaignById($id);
-
+            $cacheKey = 'campaign_' . $campaign->id;
+            Cache::forget($cacheKey);
             return $campaign->delete();
         } catch (Exception $e) {
             throw new Exception("Campaign Deletion Error: " . $e->getMessage(), 500);
@@ -88,7 +116,11 @@ class CampaignService implements ICampaignService
 
     public function applyBestCampaign(Order $order): array
     {
-        $campaigns = Campaign::all();
+        $cacheKey = 'all_campaigns';
+        
+        $campaigns = Cache::remember($cacheKey, 3600, function () {
+            return Campaign::all();
+        });
         $bestCampaign = null;
         $maxDiscount = 0;
 

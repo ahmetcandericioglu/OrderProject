@@ -5,7 +5,9 @@ namespace App\Http\Services;
 use App\Http\IServices\IProductService;
 use App\Models\Product;
 use App\Models\Category;
+use Cache;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Validation\ValidationException;
 use Exception;
 use InvalidArgumentException;
@@ -15,12 +17,22 @@ class ProductService implements IProductService
 {
     public function getAllProducts()
     {
-        return Product::all();
+        $cacheKey = 'all_products';
+        $products = Cache::remember($cacheKey, 3600, function () {
+            return Product::all();
+        });
+        return $products;
     }
 
     public function getProductById(int $id): ?Product
     {
-        return Product::findOrFail($id);
+        $cacheKey = 'product_' . $id;
+        
+        $product = Cache::remember($cacheKey, 3600, function () use ($id) {
+            return Product::findOrFail($id);
+        });
+
+        return $product;
     }
 
     public function createProduct(Request $request): Product
@@ -39,7 +51,7 @@ class ProductService implements IProductService
                 throw new NotFoundHttpException("Category not found.");
             }
 
-            return Product::create([
+            $product = Product::create([
                 'title' => $request->title,
                 'category_id' => $request->category_id,
                 'category_title' => $category->title,
@@ -47,6 +59,11 @@ class ProductService implements IProductService
                 'list_price' => $request->list_price,
                 'stock_quantity' => $request->stock_quantity,
             ]);
+
+            $cacheKey = 'product_' . $product->id;
+            Cache::put($cacheKey, $product, 3600);
+
+            return $product;
         } catch (ValidationException $e) {
             throw $e;
         } catch (Exception $e) {
@@ -57,8 +74,10 @@ class ProductService implements IProductService
     public function updateProduct(int $id, Request $request): bool
     {
         try {
+            // Mevcut ürünü veritabanından veya cache'den al
             $product = $this->getProductById($id);
 
+            // Validasyon
             $request->validate([
                 'title' => 'required|string|max:255',
                 'category_id' => 'required|exists:categories,id',
@@ -67,12 +86,13 @@ class ProductService implements IProductService
                 'stock_quantity' => 'required|integer|min:0',
             ]);
 
+            // Kategori doğrulaması
             $category = Category::find($request->category_id);
             if (!$category) {
                 throw new NotFoundHttpException("Category not found.");
             }
 
-            return $product->update([
+            $updated = $product->update([
                 'title' => $request->title,
                 'category_id' => $request->category_id,
                 'category_title' => $category->title,
@@ -80,6 +100,14 @@ class ProductService implements IProductService
                 'list_price' => $request->list_price,
                 'stock_quantity' => $request->stock_quantity,
             ]);
+
+            if ($updated) {
+                $cacheKey = 'product_' . $id;
+                Cache::put($cacheKey, $product, 3600); 
+            }
+
+            return $updated;
+
         } catch (ValidationException $e) {
             throw $e;
         } catch (Exception $e) {
@@ -91,6 +119,8 @@ class ProductService implements IProductService
     {
         try {
             $product = $this->getProductById($id);
+            $cacheKey = 'product_' . $product->id;
+            Cache::forget($cacheKey);
             return $product->delete();
         } catch (Exception $e) {
             throw new Exception("Product Deletion Error: " . $e->getMessage(), 500);

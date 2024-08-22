@@ -7,6 +7,7 @@ use App\Models\Campaign;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\Product;
+use Cache;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -107,7 +108,11 @@ class OrderService implements IOrderService
             $products = [];
 
             foreach ($orderDetailsData as $detail) {
-                $product = Product::findOrFail($detail['product_id']);
+                $id = $detail["product_id"];
+                $cacheKey = 'product_' . $id;
+                $product = Cache::remember($cacheKey, 3600, function () use ($id) {
+                    return Product::findOrFail($id);
+                });
 
                 if ($product->stock_quantity < $detail['quantity']) {
                     throw new Exception("Insufficient stock for product ID: {$product->product_id}");

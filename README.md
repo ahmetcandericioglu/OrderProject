@@ -30,7 +30,7 @@ composer install
 ### 3. Ortam Dosyasını Ayarlayın
 
 ```bash
-copy .env.example .env
+cp .env.example .env
 ```
 
 Daha sonra .env dosyasını açın ve veritabanı, cache, Redis vb. ayarlarını yapın:

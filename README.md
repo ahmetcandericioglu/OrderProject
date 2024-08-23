@@ -1,6 +1,6 @@
 # Order Project
 
-Bu proje, Laravel Framework 11.20.0 kullanarak geliştirilmiş bir RESTful API'dir. Proje, ürün yönetimi, sipariş yönetimi ve kampanya uygulamalarını içerir. Redis cache sistemi entegre edilmiştir ve Memcached/Redis gibi teknolojiler kullanılarak optimize edilmiştir.
+Proje, Laravel Framework 11.20.0 kullanarak geliştirilmiş bir RESTful API'dir. Proje, ürün yönetimi, sipariş yönetimi ve kampanya uygulamalarını içerir. Redis cache sistemi entegre edilmiştir.
 
 ## Gereksinimler
 

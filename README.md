@@ -68,8 +68,8 @@ php artisan db:seed
 
 Windows kullanıcıları için:
 
-1- Redis'i indirip kurduktan sonra redis-server.exe dosyasını çalıştırın.
-2- Redis'in çalıştığından emin olmak için Redis CLI'ya redis-cli ile bağlanın.
+* Redis'i indirip kurduktan sonra redis-server.exe dosyasını çalıştırın.
+* Redis'in çalıştığından emin olmak için Redis CLI'ya redis-cli ile bağlanın.
 
 ### 6. Uygulama Sunucusunu Başlatın
 

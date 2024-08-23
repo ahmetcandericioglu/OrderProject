@@ -8,43 +8,57 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth:sanctum'])->get('/user', function () {
-    return "asd";
-});
-
 Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 
+Route::middleware(['auth:sanctum'])->group(function () {
+    
+    // Category routes
+    Route::prefix('categories')->group(function () {
+        Route::get('/', [CategoryController::class, 'index']);
+        Route::get('/{id}', [CategoryController::class, 'show']);
+        Route::post('/', [CategoryController::class, 'store']);
+        Route::put('/{id}', [CategoryController::class, 'update']);
+        Route::delete('/{id}', [CategoryController::class, 'destroy']);
+    });
 
-Route::get('/categories', [CategoryController::class, 'index']);
-Route::get('/categories/{id}', [CategoryController::class, 'show']);
-Route::post('/categories', [CategoryController::class, 'store']);
-Route::put('/categories/{id}', [CategoryController::class, 'update']);
-Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+    // Campaign routes
+    Route::prefix('campaigns')->group(function () {
+        Route::get('/', [CampaignController::class, 'index']);
+        Route::get('/{id}', [CampaignController::class, 'show']);
+        Route::post('/', [CampaignController::class, 'store']);
+        Route::put('/{id}', [CampaignController::class, 'update']);
+        Route::delete('/{id}', [CampaignController::class, 'destroy']);
+    });
 
-Route::get('/campaigns', [CampaignController::class, 'index']);
-Route::get('/campaigns/{id}', [CampaignController::class, 'show']);
-Route::post('/campaigns', [CampaignController::class, 'store']);
-Route::put('/campaigns/{id}', [CampaignController::class, 'update']);
-Route::delete('/campaigns/{id}', [CampaignController::class, 'destroy']);
+    // Product routes
+    Route::prefix('products')->group(function () {
+        Route::get('/', [ProductController::class, 'index']);
+        Route::get('/{id}', [ProductController::class, 'show']);
+        Route::post('/', [ProductController::class, 'store']);
+        Route::put('/{id}', [ProductController::class, 'update']);
+        Route::delete('/{id}', [ProductController::class, 'destroy']);
+        Route::post('/{id}/increase-stock', [ProductController::class, 'increaseStock']);
+        Route::post('/{id}/decrease-stock', [ProductController::class, 'decreaseStock']);
+    });
 
-Route::get('/products', [ProductController::class, 'index']);
-Route::get('/products/{id}', [ProductController::class, 'show']);
-Route::post('/products', [ProductController::class, 'store']);
-Route::put('/products/{id}', [ProductController::class, 'update']);
-Route::delete('/products/{id}', [ProductController::class, 'destroy']);
-Route::post('/products/{id}/increase-stock', [ProductController::class, 'increaseStock']);
-Route::post('/products/{id}/decrease-stock', [ProductController::class, 'decreaseStock']);
+    // Order routes
+    Route::prefix('orders')->group(function () {
+        Route::get('/', [OrderController::class, 'index']);
+        Route::get('/{id}', [OrderController::class, 'show']);
+        Route::post('/', [OrderController::class, 'store']);
+        Route::put('/{id}', [OrderController::class, 'update']);
+        Route::delete('/{id}', [OrderController::class, 'destroy']);
+        Route::post('/process', [OrderController::class, 'storeOrderWithConstraints']);
+    });
 
-Route::get('/orders', [OrderController::class, 'index']);
-Route::get('/orders/{id}', [OrderController::class, 'show']);
-Route::post('/orders', [OrderController::class, 'store']);
-Route::put('/orders/{id}', [OrderController::class, 'update']);
-Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
-Route::post("/orders/process", [OrderController::class, 'storeOrderWithConstraints']);
+    // OrderDetail routes
+    Route::prefix('order-details')->group(function () {
+        Route::get('/', [OrderDetailController::class, 'index']);
+        Route::get('/{id}', [OrderDetailController::class, 'show']);
+        Route::post('/', [OrderDetailController::class, 'store']);
+        Route::put('/{id}', [OrderDetailController::class, 'update']);
+        Route::delete('/{id}', [OrderDetailController::class, 'destroy']);
+    });
 
-Route::get('/order-details', [OrderDetailController::class, 'index']);
-Route::get('/order-details/{id}', [OrderDetailController::class, 'show']);
-Route::post('/order-details', [OrderDetailController::class, 'store']);
-Route::put('/order-details/{id}', [OrderDetailController::class, 'update']);
-Route::delete('/order-details/{id}', [OrderDetailController::class, 'destroy']);
+});

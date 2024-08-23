@@ -134,6 +134,7 @@ class OrderService implements IOrderService
                 $this->productService->decreaseStock($product->product_id, $detail['quantity']);
             }
             $order = Order::create([
+                'user_id' => auth()->id(),
                 'total_amount' => $totalAmount, 
                 'discount_amount' => 0, 
                 'shipping_fee' => 0, 

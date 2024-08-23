@@ -8,15 +8,19 @@ use App\Models\Order;
 use Cache;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use App\Http\Services\Campaigns\SabahattinAliCampaign;
+use App\Http\Services\Campaigns\LocalAuthorCampaign;
+use App\Http\Services\Campaigns\OrderTotalDiscountCampaign;
+
 use Exception;
 
 class CampaignService implements ICampaignService
 {
 
     protected $strategies = [
-        'btgo' => \App\Http\Services\Campaigns\SabahattinAliCampaign::class,
-        'local_discount' => \App\Http\Services\Campaigns\LocalAuthorCampaign::class,
-        'total_discount' => \App\Http\Services\Campaigns\OrderTotalDiscountCampaign::class,
+        'btgo' => SabahattinAliCampaign::class,
+        'local_discount' => LocalAuthorCampaign::class,
+        'total_discount' => OrderTotalDiscountCampaign::class,
     ];
     public function getAllCampaigns()
     {

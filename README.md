@@ -63,6 +63,9 @@ REDIS_PORT=6379
 php artisan migrate
 php artisan db:seed
 ```
+* Seed'den gelen User bilgileri:
+- Email: admin@gmail.com
+- Password: 123456
 
 ### 5. Redis'i Çalıştırın
 

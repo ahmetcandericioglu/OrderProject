@@ -137,7 +137,7 @@ class ProductService implements IProductService
             return $product;    
 
         } catch (InvalidArgumentException $e) {
-            throw new InvalidArgumentException('Product Stock Error: '. $e->getMessage(), 500);
+            throw new InvalidArgumentException('Product Stock Error: '. $e->getMessage(), 400);
         }
         catch (Exception $e) {
             throw new Exception('Product Stock Error: '. $e->getMessage(), 500);
@@ -156,7 +156,7 @@ class ProductService implements IProductService
             return $product;    
 
         } catch (InvalidArgumentException $e) {
-            throw new InvalidArgumentException('Product Stock Error: '. $e->getMessage(), 500);
+            throw new InvalidArgumentException('Product Stock Error: '. $e->getMessage(), 400);
         }
         catch (Exception $e) {
             throw new Exception('Product Stock Error: '. $e->getMessage(), 500);

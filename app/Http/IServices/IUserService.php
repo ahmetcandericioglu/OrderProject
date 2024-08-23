@@ -8,6 +8,7 @@ use App\Models\User;
 interface IUserService
 {
     public function registerUser(Request $request): User;
-
     public function loginUser(Request $request): string;
+    public function logoutUser(): string;
+    public function myOrders() : array;
 }

@@ -3,11 +3,14 @@
 namespace App\Http\Services;
 
 use App\Http\IServices\IUserService;
+use App\Models\Order;
+use Auth;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Models\User;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserService implements IUserService
 {
@@ -53,6 +56,32 @@ class UserService implements IUserService
             throw $e;
         } catch (Exception $e) {
             throw new Exception("Login Error: " . $e->getMessage());
+        }
+    }
+
+    public function logoutUser(): string
+    {
+        try {
+            Auth::user()->currentAccessToken()->delete();
+            return "User succeffully logout";
+        }
+        catch (Exception $e) {
+            throw new Exception("Logout Error: ". $e->getMessage());
+        }
+    }
+
+    public function myOrders(): array
+    {
+        try {
+            $orders = Order::where('user_id', auth()->id())->with('orderDetails')->get();
+
+            if ($orders->isEmpty()) {
+                throw new NotFoundHttpException('No orders found for this user.');
+            }
+
+            return $orders->toArray();
+        } catch (Exception $e) {
+            throw new Exception("Getting Order Error: " . $e->getMessage(), 500);
         }
     }
 }

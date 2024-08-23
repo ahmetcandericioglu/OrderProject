@@ -12,6 +12,12 @@ Route::post('/register', [UserController::class, 'register']);
 Route::post('/login', [UserController::class, 'login']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    // User routes
+    Route::prefix('users')->group(function () {
+        Route::get('/my-orders', [UserController::class,'myOrders']);
+        Route::post('/logout', [UserController::class,'logout']);
+
+    });
     
     // Category routes
     Route::prefix('categories')->group(function () {

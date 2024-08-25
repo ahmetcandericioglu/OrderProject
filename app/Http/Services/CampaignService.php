@@ -48,6 +48,8 @@ class CampaignService implements ICampaignService
     public function createCampaign(Request $request): Campaign
     {
         try {
+            Cache::forget('all_campaigns');
+
             $request->validate([
                 'name' => 'required|string|max:255',
                 'type' => 'required|string|max:255',
@@ -77,6 +79,8 @@ class CampaignService implements ICampaignService
     public function updateCampaign(int $id, Request $request): bool
     {
         try {
+            Cache::forget('all_campaigns');
+
             $campaign = $this->getCampaignById($id);
 
             $request->validate([
@@ -109,6 +113,8 @@ class CampaignService implements ICampaignService
     public function deleteCampaign(int $id): bool
     {
         try {
+            Cache::forget('all_campaigns');
+
             $campaign = $this->getCampaignById($id);
             $cacheKey = 'campaign_' . $campaign->id;
             Cache::forget($cacheKey);

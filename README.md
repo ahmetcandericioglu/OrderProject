@@ -84,7 +84,14 @@ php artisan serve
 
 ### API CRUD İşlemleri
 
+#### Kullanıcılar
+* Register: POST /api/register
+* Login: POST /api/login
+* Siparişleri Getirme: GET /api/users/my-orders
+* Logout: POST /api/users/logout
+
 #### Ürünler
+* Tüm Ürünleri Getirme: GET /api/products
 * Ürün Ekleme: POST /api/products
 * Ürün Güncelleme: PUT /api/products/{id}
 * Ürün Silme: DELETE /api/products/{id}
@@ -93,8 +100,7 @@ php artisan serve
 * Stok azaltma: POST /api/products/{id}/decrease-stock
 
 #### Siparişler
-* Sipariş Oluşturma: POST /api/orders/process
-
+* Kampanyalar dahil Sipariş Oluşturma: POST /api/orders/process
 JSON input:
 
 {
@@ -112,11 +118,25 @@ JSON input:
         .
     ]
 }
+
+* Tüm Siparişleri Getirme: GET /api/orders
+* Sipariş Ekleme: POST /api/orders
+* Sipariş Güncelleme: PUT /api/orders/{id}
+* Sipariş Silme: DELETE /api/orders/{id}
 * Sipariş Getirme: GET /api/orders/{id}
 * Sipariş Detayları Getirme: GET /api/order-details/{id}
 
+#### Kampanyalar
+* Tüm Kampanyaları Getirme: GET /api/campaigns
+* Kampanya Ekleme: POST /api/campaigns
+* Kampanya Güncelleme: PUT /api/campaigns/{id}
+* Kampanya Silme: DELETE /api/campaigns/{id}
+* Kampanya Getirme: GET /api/campaigns/{id}
+
 ## Geliştirme Notları
 
+* İleride yeni kampanyalar oluşturulabileceği için kampanya servisi strateji paternine uygun tasarlanmıştır yeni bir kampanya oluşturulduğunda bu kampanyanın class'ının yazılması ve database'e kaydedilmesi gerekmektedir. Daha sonrasında kampanyanın "type" özelliği kampanya servisinin "strategies" array'ine tanımlanmalıdır
 * SOLID Prensipleri: Proje SOLID prensiplerine uygun şekilde geliştirilmiştir. İşlemler servis katmanında (Services) tanımlanmış olup, kontrol katmanından ayrılmıştır.
-* Validasyon: Validasyon işlemleri kontrol katmanında gerçekleştirilmiştir.
-* Error Handling: Exception handling try-catch blokları ile yapılmıştır ve gerekli durumlarda özel hata mesajları dönülmüştür.
+* Validasyon: Validasyon işlemleri servis katmanında gerçekleştirilmiştir.
+* Error Handling: Exception handling try-catch blokları ile yapılmıştır, servislerde doğru hatalar fırlatılıp controller kısmında kontrol edilip gerekli durumlarda özel hata mesajları dönülmüştür.
+* Redis ile cache işlemleri yapılmıştır 

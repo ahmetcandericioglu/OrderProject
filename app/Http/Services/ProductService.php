@@ -27,7 +27,6 @@ class ProductService implements IProductService
     public function getProductById(int $id): ?Product
     {
         $cacheKey = 'product_' . $id;
-        
         $product = Cache::remember($cacheKey, 3600, function () use ($id) {
             return Product::findOrFail($id);
         });
@@ -38,6 +37,7 @@ class ProductService implements IProductService
     public function createProduct(Request $request): Product
     {
         try {
+            Cache::forget('all_products');
             $request->validate([
                 'title' => 'required|string|max:255',
                 'category_id' => 'required|exists:categories,id',
@@ -74,6 +74,7 @@ class ProductService implements IProductService
     public function updateProduct(int $id, Request $request): bool
     {
         try {
+            Cache::forget('all_products');
             $product = $this->getProductById($id);
 
             $request->validate([
@@ -116,6 +117,7 @@ class ProductService implements IProductService
     public function deleteProduct(int $id): bool
     {
         try {
+            Cache::forget('all_products');
             $product = $this->getProductById($id);
             $cacheKey = 'product_' . $product->id;
             Cache::forget($cacheKey);
@@ -128,6 +130,7 @@ class ProductService implements IProductService
     public function increaseStock(int $productId, int $amount) : Product
     {
         try {
+            Cache::forget('all_products');
             $product = Product::findOrFail($productId);
             if ($amount <= 0) {
                 throw new InvalidArgumentException("The amount to increase must be greater than zero.");
@@ -147,6 +150,7 @@ class ProductService implements IProductService
     public function decreaseStock(int $productId, int $amount): Product
     {
         try {
+            Cache::forget('all_products');
             $product = Product::findOrFail($productId);
             if ($amount <= 0) {
                 throw new InvalidArgumentException("The amount to decrease must be greater than zero.");
